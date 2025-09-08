@@ -1,0 +1,178 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Updated color tokens to retro-green terminal aesthetic */
+:root {
+  --background: #000000;
+  --foreground: #00ff00;
+  --card: #1c1c1c;
+  --card-foreground: #00ff00;
+  --popover: #2e2e2e;
+  --popover-foreground: #00ff00;
+  --primary: #00ff00;
+  --primary-foreground: #000000;
+  --secondary: #00b300;
+  --secondary-foreground: #000000;
+  --muted: #2e2e2e;
+  --muted-foreground: #00ff00;
+  --accent: #00b300;
+  --accent-foreground: #000000;
+  --destructive: #ff0000;
+  --destructive-foreground: #ffffff;
+  --border: #00ff00;
+  --input: #1c1c1c;
+  --ring: #00ff00;
+  --chart-1: #00ff00;
+  --chart-2: #00b300;
+  --chart-3: #1c1c1c;
+  --chart-4: #2e2e2e;
+  --chart-5: #00ff00;
+  --radius: 0.25rem;
+  --sidebar: #1c1c1c;
+  --sidebar-foreground: #00ff00;
+  --sidebar-primary: #00b300;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #00ff00;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #00ff00;
+  --sidebar-ring: #00ff00;
+}
+
+.dark {
+  --background: #000000;
+  --foreground: #00ff00;
+  --card: #1c1c1c;
+  --card-foreground: #00ff00;
+  --popover: #2e2e2e;
+  --popover-foreground: #00ff00;
+  --primary: #00ff00;
+  --primary-foreground: #000000;
+  --secondary: #00b300;
+  --secondary-foreground: #000000;
+  --muted: #2e2e2e;
+  --muted-foreground: #00ff00;
+  --accent: #00b300;
+  --accent-foreground: #000000;
+  --destructive: #ff0000;
+  --destructive-foreground: #ffffff;
+  --border: #00ff00;
+  --input: #1c1c1c;
+  --ring: #00ff00;
+  --chart-1: #00ff00;
+  --chart-2: #00b300;
+  --chart-3: #1c1c1c;
+  --chart-4: #2e2e2e;
+  --chart-5: #00ff00;
+  --sidebar: #1c1c1c;
+  --sidebar-foreground: #00ff00;
+  --sidebar-primary: #00b300;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #00ff00;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #00ff00;
+  --sidebar-ring: #00ff00;
+}
+
+@theme inline {
+  /* Added VT323 font configuration */
+  --font-sans: "VT323", monospace;
+  --font-mono: "VT323", monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Added terminal-style animations and effects */
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+}
+
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 2s steps(40, end);
+}
+
+.terminal-glow {
+  text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
+}
+
+.scan-lines {
+  position: relative;
+}
+
+.scan-lines::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(transparent 50%, rgba(0, 255, 0, 0.03) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+}
