@@ -1,227 +1,381 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Github,
-  ExternalLink,
-  Code,
-  Award,
-  GraduationCap,
-  Briefcase,
-  User,
-  Terminal,
-} from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 
-// Define interfaces for type safety
-interface Project {
-  title: string
-  description: string
-  technologies: string[]
-  features: string[]
-  link: string
-}
+// Matrix Rain Background Component
+const MatrixRain = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-interface SkillCategory {
-  [category: string]: string[]
-}
-
-// Main Portfolio component
-export default function Portfolio() {
-  const [currentSection, setCurrentSection] = useState("home")
-  const [terminalText, setTerminalText] = useState("")
-  const [showCursor, setShowCursor] = useState(true)
-
-  const welcomeText = "Welcome to Sohanur Rahman's Portfolio"
-
-  // Typing effect for welcome text
   useEffect(() => {
-    let i = 0
-    const timer = setInterval(() => {
-      if (i < welcomeText.length) {
-        setTerminalText(welcomeText.slice(0, i + 1))
-        i++
-      } else {
-        clearInterval(timer)
-      }
-    }, 100)
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    return () => clearInterval(timer)
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+
+    const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}".split("")
+    const fontSize = 12
+    const columns = canvas.width / fontSize
+    const drops = Array(Math.floor(columns)).fill(1)
+
+    const draw = () => {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)"
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.fillStyle = "#00ff00"
+      ctx.font = `${fontSize}px VT323`
+
+      drops.forEach((y: number, i: number) => {
+        const text = matrix[Math.floor(Math.random() * matrix.length)]
+        ctx.fillText(text, i * fontSize, y * fontSize)
+        if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0
+        drops[i]++
+      })
+    }
+
+    const interval = setInterval(draw, 30)
+    const handleResize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+
+    window.addEventListener("resize", handleResize)
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener("resize", handleResize)
+    }
   }, [])
 
-  // Cursor blinking effect
-  useEffect(() => {
-    const cursorTimer = setInterval(() => {
-      setShowCursor((prev) => !prev)
-    }, 500)
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none opacity-10 z-0" />
+}
 
+// Animated Skill Bar Component
+const AnimatedSkillBar = ({ skill, level }: { skill: string; level: number }) => {
+  const [width, setWidth] = useState(0)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setWidth(level), 500)
+    return () => clearTimeout(timer)
+  }, [level])
+
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-sm text-gray-300">
+        <span>{skill}</span>
+        <span>{level}%</span>
+      </div>
+      <div className="w-full bg-gray-700 rounded-full h-2.5">
+        <div
+          className="bg-green-500 h-2.5 rounded-full transition-all duration-1000 ease-out"
+          style={{ width: `${width}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+// Typing Effect Hook
+const useTypingEffect = (text: string, speed = 80) => {
+  const [displayText, setDisplayText] = useState("")
+  const [isComplete, setIsComplete] = useState(false)
+
+  useEffect(() => {
+    setDisplayText("")
+    setIsComplete(false)
+    let i = 0
+    const timer = setInterval(() => {
+      if (i < text.length) {
+        setDisplayText(text.slice(0, i + 1))
+        i++
+      } else {
+        setIsComplete(true)
+        clearInterval(timer)
+      }
+    }, speed)
+    return () => clearInterval(timer)
+  }, [text, speed])
+
+  return { displayText, isComplete }
+}
+
+// Main Portfolio Component
+export default function Portfolio() {
+  const [currentSection, setCurrentSection] = useState("home")
+  const [showCursor, setShowCursor] = useState(true)
+  const [stats, setStats] = useState({ projects: 0, problems: 0, technologies: 0 })
+  const [commandHistory, setCommandHistory] = useState<string[]>([])
+  const [isGlitching, setIsGlitching] = useState(false)
+
+  const welcomeText = "Welcome to Sohanur Rahman's Portfolio"
+  const { displayText: terminalText, isComplete } = useTypingEffect(welcomeText)
+
+  useEffect(() => {
+    const animateStats = () => {
+      const targetStats = { projects: 3, problems: 1000, technologies: 15 }
+      const duration = 1500
+      const steps = 60
+      const stepDuration = duration / steps
+
+      let step = 0
+      const timer = setInterval(() => {
+        step++
+        const progress = step / steps
+        const easeOut = 1 - Math.pow(1 - progress, 3)
+        setStats({
+          projects: Math.floor(targetStats.projects * easeOut),
+          problems: Math.floor(targetStats.problems * easeOut),
+          technologies: Math.floor(targetStats.technologies * easeOut),
+        })
+        if (step >= steps) {
+          clearInterval(timer)
+          setStats(targetStats)
+        }
+      }, stepDuration)
+      return () => clearInterval(timer)
+    }
+
+    if (currentSection === "home") {
+      const timeout = setTimeout(animateStats, 800)
+      return () => clearTimeout(timeout)
+    }
+  }, [currentSection])
+
+  useEffect(() => {
+    const sectionCommands: Record<string, string> = {
+      home: "cd ~",
+      about: "cat about.txt",
+      experience: "ls -la experience/",
+      projects: "cd projects && ls",
+      education: "cat education.log",
+      skills: "./skills --list",
+      contact: "contact --info",
+    }
+    const command = sectionCommands[currentSection]
+    if (command && !commandHistory.includes(command)) {
+      setCommandHistory((prev) => [...prev, command].slice(-5))
+    }
+  }, [currentSection, commandHistory])
+
+  useEffect(() => {
+    const glitchInterval = setInterval(() => {
+      setIsGlitching(true)
+      setTimeout(() => setIsGlitching(false), 150)
+    }, 8000)
+    return () => clearInterval(glitchInterval)
+  }, [])
+
+  useEffect(() => {
+    const cursorTimer = setInterval(() => setShowCursor((prev) => !prev), 500)
     return () => clearInterval(cursorTimer)
   }, [])
 
-  // Navigation sections
   const sections = [
-    { id: "home", label: "> HOME", icon: Terminal },
-    { id: "about", label: "> ABOUT", icon: User },
-    { id: "experience", label: "> EXPERIENCE", icon: Briefcase },
-    { id: "projects", label: "> PROJECTS", icon: Code },
-    { id: "education", label: "> EDUCATION", icon: GraduationCap },
-    { id: "skills", label: "> SKILLS", icon: Award },
-    { id: "contact", label: "> CONTACT", icon: Mail },
+    { id: "home", label: "> HOME", icon: "🏠" },
+    { id: "about", label: "> ABOUT", icon: "👤" },
+    { id: "experience", label: "> EXPERIENCE", icon: "💼" },
+    { id: "projects", label: "> PROJECTS", icon: "💻" },
+    { id: "education", label: "> EDUCATION", icon: "🎓" },
+    { id: "skills", label: "> SKILLS", icon: "🏆" },
+    { id: "contact", label: "> CONTACT", icon: "📧" },
   ]
 
-  // Skills data
-  const skills: SkillCategory = {
-    "Programming Languages": ["Java", "C", "C++", "Python", "JavaScript"],
-    "Web Technologies": ["HTML", "CSS", "FastAPI", "Spring Boot"],
-    "Frameworks & Libraries": ["Scikit-learn", "Pandas", "NumPy", "TensorFlow", "Keras"],
-    Databases: ["MySQL", "PostgreSQL"],
-    "AI/ML": ["NLP", "Deep Learning", "CNNs", "RNNs", "GANs", "RAG", "BERT", "GPT"],
-    Tools: ["Git", "GitHub", "Docker", "Jenkins", "Kubernetes", "Google Colab"],
+  const skillsWithLevels = {
+    "Programming Languages": [
+      { name: "Python", level: 92 },
+      { name: "Java", level: 88 },
+      { name: "JavaScript", level: 85 },
+      { name: "C++", level: 80 },
+      { name: "C", level: 75 },
+    ],
+    "AI/ML": [
+      { name: "Deep Learning", level: 88 },
+      { name: "NLP", level: 85 },
+      { name: "Computer Vision", level: 80 },
+      { name: "RAG Systems", level: 75 },
+    ],
+    "Web Technologies": [
+      { name: "Next.js", level: 90 },
+      { name: "FastAPI", level: 85 },
+      { name: "HTML/CSS", level: 95 },
+      { name: "Spring Boot", level: 80 },
+    ],
+    "Tools & Platforms": [
+      { name: "Git/GitHub", level: 92 },
+      { name: "Docker", level: 85 },
+      { name: "Linux", level: 90 },
+      { name: "Kubernetes", level: 80 },
+    ],
   }
 
-  // Projects data
-  const projects: Project[] = [
+  const skills = {
+    "Programming Languages": ["Java", "C", "C++", "Python", "JavaScript", "TypeScript"],
+    "Web Technologies": ["HTML", "CSS", "Next.js", "FastAPI", "Spring Boot", "Tailwind CSS"],
+    "Frameworks & Libraries": ["React", "Scikit-learn", "Pandas", "NumPy", "TensorFlow", "Keras"],
+    Databases: ["MySQL", "PostgreSQL", "MongoDB"],
+    "AI/ML": ["NLP", "Deep Learning", "CNNs", "RNNs", "GANs", "RAG", "BERT", "GPT"],
+    Tools: ["Git", "GitHub", "Docker", "Jenkins", "Kubernetes", "Google Colab", "VS Code"],
+  }
+
+  const projects = [
     {
       title: "Conversational Memory Bot",
-      description: "AI-Powered Photo Gallery Assistant with natural language querying and visual understanding",
-      technologies: ["Python", "FastAPI", "Gemini LLM", "CLIP", "ChromaDB", "RAG", "Multimodal AI"],
+      description:
+        "AI-powered photo gallery assistant with advanced natural language querying and visual understanding.",
+      technologies: ["Python", "Next.js", "Gemini LLM", "CLIP", "ChromaDB", "RAG", "Multimodal AI"],
       features: [
         "Natural language photo searches",
-        "Contextual image retrieval",
+        "Context-aware image retrieval",
         "Visual similarity search",
         "Automatic image tagging",
+        "Real-time processing",
       ],
       link: "https://github.com/SoRaS20/Conversational-Memory-Bot",
     },
     {
       title: "Smile Classifier",
-      description: "AI-Powered Image Classification System using FastAPI and pre-trained SVM model",
-      technologies: ["FastAPI", "Python", "Scikit-learn", "SQLAlchemy", "MySQL", "Docker"],
+      description: "AI-driven image classification system with a responsive UI and RESTful API.",
+      technologies: ["Next.js", "Python", "FastAPI", "Scikit-learn", "SQLAlchemy", "MySQL", "Docker"],
       features: [
         "Real-time image classification",
-        "RESTful API design",
-        "Docker containerization",
-        "Responsive web interface",
+        "Scalable RESTful API",
+        "Dockerized deployment",
+        "Interactive web interface",
       ],
       link: "https://github.com/SoRaS20/Smile-Classifier",
     },
     {
       title: "Building Crack Detection",
-      description: "Deep Learning system for detecting cracks in building structures using VGG-16",
+      description: "Deep learning system for detecting structural cracks using advanced CNNs.",
       technologies: ["Python", "TensorFlow", "Keras", "VGG-16", "OpenCV", "CNN"],
       features: [
-        "Transfer learning implementation",
-        "6000+ image dataset processing",
-        "High accuracy crack detection",
-        "CNN model fine-tuning",
+        "Transfer learning with VGG-16",
+        "High-accuracy crack detection",
+        "Large-scale image processing",
+        "Model optimization",
       ],
       link: "https://github.com/SoRaS20/Building-Crack-Detection",
     },
   ]
 
-  // Render content based on current section
   const renderSection = () => {
     switch (currentSection) {
       case "home":
         return (
           <div className="space-y-8 animate-fade-in">
             <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center md:text-left">
-              {/* Fixed-size image container to prevent animation impact */}
-              <div className="flex-shrink-0">
-                <Image
-                  src="https://scontent.fdac31-2.fna.fbcdn.net/v/t39.30808-6/441185402_3782933102025158_3007996458605467232_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFSbQzxRLfrLrHO0zTRmzEPhEWX1tmC0ZqERZfW2YLRmmOt11r4Wy4oIPVbAoqou7EUQDddt-kUcE984qyEm6GG&_nc_ohc=xUwnIOz2oa0Q7kNvwH4KqZ3&_nc_oc=Adln3WXcptI2Gy5dP4i2sPorusLu8X1gczrQrkP7pYkagY9vxkJ0mTaHuMANQMyZS-g&_nc_zt=23&_nc_ht=scontent.fdac31-2.fna&_nc_gid=ANkAoTJ2l7kCG9VCzEm-Cg&oh=00_AfafUWnLruprhvOFpL387IWIbWPqxk3KcAnS4_-7eAujbg&oe=68C49162"
+              <div className="relative group">
+                <div className="absolute -inset-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-1000"></div>
+                <img
+                  src="/software-engineer-portrait.jpg"
                   alt="Sohanur Rahman"
-                  width={192} // Fixed width (48 * 4 for md size)
-                  height={192} // Fixed height
-                  className="border-4 border-primary"
-                  priority
+                  className="relative w-48 h-48 border-4 border-green-500 rounded-lg transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
                 />
               </div>
               <div className="space-y-4">
-                <div className="text-4xl md:text-5xl font-bold font-mono">
+                <h1
+                  className={`text-4xl md:text-5xl font-bold ${isGlitching ? "animate-pulse text-blue-400" : "text-green-400"}`}
+                >
                   {terminalText}
-                  {showCursor && <span className="animate-blink">_</span>}
+                  {showCursor && !isComplete && <span className="animate-pulse">_</span>}
+                </h1>
+                <div className="text-xl text-blue-400 flex items-center gap-2">
+                  <span>🖥️</span>$ whoami
                 </div>
-                <div className="text-xl md:text-3xl text-accent">$ whoami</div>
-                <div className="text-lg">Sohanur Rahman</div>
-                <div className="text-2xl text-muted-foreground">
-                  Specializing in AI, Machine Learning & Web Development
+                <div className="text-lg text-gray-300">Sohanur Rahman</div>
+                <div className="text-xl text-gray-400">AI & ML Engineer | Web Developer | Competitive Programmer</div>
+                <div className="flex flex-wrap gap-4 text-sm text-gray-300">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    <span>Online</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span>⚡</span>
+                    <span>Active Developer</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span>🚀</span>
+                    <span>AI Enthusiast</span>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <Card className="p-6 bg-card border-primary transition-all duration-300 hover:shadow-lg">
-              <div className="grid md:grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-3xl font-bold text-primary">3+</div>
-                  <div className="text-2xl">Major Projects</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-primary">1000+</div>
-                  <div className="text-2xl">Problems Solved</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-primary">15+</div>
-                  <div className="text-2xl">Technologies</div>
-                </div>
+            <div className="p-6 bg-gray-800/80 border-2 border-green-500 rounded-lg shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-shadow duration-300">
+              <div className="grid md:grid-cols-3 gap-6 text-center">
+                {[
+                  { value: stats.projects, label: "Major Projects", color: "green-500" },
+                  { value: stats.problems, label: "Problems Solved", color: "blue-400" },
+                  { value: stats.technologies, label: "Technologies", color: "green-400" },
+                ].map((stat, idx) => (
+                  <div key={idx} className="group">
+                    <div
+                      className={`text-3xl font-bold text-${stat.color} transition-transform duration-300 group-hover:scale-110`}
+                    >
+                      {stat.value}+
+                    </div>
+                    <div className="text-xl text-gray-300">{stat.label}</div>
+                    <div className="w-full bg-gray-700 rounded-full h-1 mt-2">
+                      <div
+                        className={`bg-${stat.color} h-1 rounded-full transition-all duration-1000`}
+                        style={{ width: "100%" }}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-            </Card>
+            </div>
+            <div className="p-4 bg-gray-800/50 border-2 border-green-500/50 rounded-lg">
+              <div className="text-sm text-gray-300">
+                <div className="text-blue-400 mb-2">Recent Commands:</div>
+                {commandHistory.slice(-3).map((cmd, idx) => (
+                  <div key={idx} className="text-gray-400">
+                    <span className="text-green-400">sohanur@portfolio:~$ </span>
+                    {cmd}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )
-
       case "about":
         return (
           <div className="space-y-6 animate-fade-in">
-            <h2 className="text-3xl font-bold text-primary">$ cat about.txt</h2>
-            <Card className="p-6 bg-card border-primary transition-all duration-300 hover:shadow-lg">
+            <h2 className="text-3xl font-bold text-green-400">$ cat about.txt</h2>
+            <div className="p-6 bg-gray-800/80 border-2 border-green-500 rounded-lg shadow-lg hover:shadow-green-500/40 transition-shadow duration-300">
               <div className="space-y-4">
-                <p className="text-lg">
-                  Passionate Trainee Software Engineer with hands-on experience in AI, web development, and machine
-                  learning. Currently working at BJIT Limited, focusing on cutting-edge technologies and clean code
-                  practices.
+                <p className="text-lg text-gray-300">
+                  Passionate Software Engineer with expertise in AI, machine learning, and full-stack development.
+                  Currently at BJIT Limited, building innovative solutions with a focus on performance and scalability.
                 </p>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="text-xl font-bold text-accent mb-2">Personal Info</h3>
-                    <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-blue-400 mb-2">Personal Info</h3>
+                    <div className="space-y-2 text-sm text-gray-300">
                       <div className="flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-primary" aria-hidden="true" />
-                        <a
-                          href="mailto:sohanurrahman621@gmail.com"
-                          className="hover:text-accent transition-colors"
-                          aria-label="Email Sohanur Rahman"
-                        >
+                        <span>📧</span>
+                        <a href="mailto:sohanurrahman621@gmail.com" className="hover:text-blue-400 transition-colors">
                           sohanurrahman621@gmail.com
                         </a>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4 text-primary" aria-hidden="true" />
-                        <a
-                          href="tel:+8801879957329"
-                          className="hover:text-accent transition-colors"
-                          aria-label="Call Sohanur Rahman"
-                        >
+                        <span>📱</span>
+                        <a href="tel:+8801879957329" className="hover:text-blue-400 transition-colors">
                           +8801879957329
                         </a>
                       </div>
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-primary" aria-hidden="true" />
+                        <span>📍</span>
                         <span>Mohakhali, Dhaka</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Github className="w-4 h-4 text-primary" aria-hidden="true" />
+                        <span>🐙</span>
                         <a
                           href="https://github.com/SoRaS20"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="hover:text-accent transition-colors"
-                          aria-label="Visit Sohanur Rahman's GitHub profile"
+                          className="hover:text-blue-400 transition-colors"
                         >
                           SoRaS20
                         </a>
@@ -229,260 +383,274 @@ export default function Portfolio() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-accent mb-2">Competitive Programming</h3>
-                    <div className="space-y-1 text-sm">
-                      <div>
-                        Codeforces:{" "}
-                        <a
-                          href="https://codeforces.com/profile/TheEnd"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-accent transition-colors"
-                          aria-label="Visit Sohanur Rahman's Codeforces profile"
-                        >
-                          TheEnd
-                        </a>
-                      </div>
-                      <div>
-                        LeetCode:{" "}
-                        <a
-                          href="https://leetcode.com/SoRaS_20"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-accent transition-colors"
-                          aria-label="Visit Sohanur Rahman's LeetCode profile"
-                        >
-                          SoRaS_20
-                        </a>
-                      </div>
-                      <div>
-                        Vjudge:{" "}
-                        <a
-                          href="https://vjudge.net/user/lazy_coder0"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-accent transition-colors"
-                          aria-label="Visit Sohanur Rahman's Vjudge profile"
-                        >
-                          lazy_coder0
-                        </a>
-                      </div>
-                      <div>
-                        StopStalk:{" "}
-                        <a
-                          href="https://www.stopstalk.com/user/profile/SoRaS"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-accent transition-colors"
-                          aria-label="Visit Sohanur Rahman's StopStalk profile"
-                        >
-                          SoRaS
-                        </a>
-                      </div>
+                    <h3 className="text-xl font-bold text-blue-400 mb-2">Competitive Programming</h3>
+                    <div className="space-y-2 text-sm text-gray-300">
+                      {[
+                        { name: "Codeforces", handle: "TheEnd", url: "https://codeforces.com/profile/TheEnd" },
+                        { name: "LeetCode", handle: "SoRaS_20", url: "https://leetcode.com/SoRaS_20" },
+                        { name: "Vjudge", handle: "lazy_coder0", url: "https://vjudge.net/user/lazy_coder0" },
+                        { name: "StopStalk", handle: "SoRaS", url: "https://www.stopstalk.com/user/profile/SoRaS" },
+                      ].map((profile, idx) => (
+                        <div key={idx}>
+                          {profile.name}:{" "}
+                          <a
+                            href={profile.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-blue-400 transition-colors"
+                          >
+                            {profile.handle}
+                          </a>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         )
-
       case "experience":
         return (
           <div className="space-y-6 animate-fade-in">
-            <h2 className="text-3xl font-bold text-primary">$ ls -la experience/</h2>
-            <Card className="p-6 bg-card border-primary transition-all duration-300 hover:shadow-lg">
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
+            <h2 className="text-3xl font-bold text-green-400">$ ls -la experience/</h2>
+            {[
+              {
+                title: "Trainee Software Engineer",
+                company: "BJIT Limited",
+                period: "Nov 2024 – Feb 2025",
+                tasks: [
+                  "Gained hands-on experience in AI, web development, and REST APIs",
+                  "Worked on projects using Python, FastAPI for scalable backend solutions",
+                  "Practiced Agile development, using Git, GitHub, and Redmine for version control",
+                  "Strengthened skills in OOP, DSA, and problem-solving techniques",
+                  "Participated in regular code reviews, presentations, and technical discussions",
+                  "Improved skills in clean code writing and debugging methodologies",
+                  "Familiar with automating CI/CD using Docker, Jenkins, and Kubernetes",
+                ],
+              },
+              {
+                title: "Undergraduate Researcher",
+                company: "NSTU",
+                period: "Mar 2023 – Feb 2024",
+                tasks: [
+                  "Developed efficient crack detection system leveraging VGG-16 and transfer learning",
+                  "Collected and processed dataset of 6000+ images for crack classification",
+                  "Fine-tuned CNN models to achieve high accuracy in detecting building cracks",
+                  "Used Python, TensorFlow, Keras, and OpenCV for deep learning implementation",
+                ],
+              },
+            ].map((exp, idx) => (
+              <div
+                key={idx}
+                className="p-6 bg-gray-800/80 border-2 border-green-500 rounded-lg shadow-lg hover:shadow-green-500/40 transition-shadow duration-300"
+              >
+                <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-accent">Trainee Software Engineer</h3>
-                    <p className="text-lg text-primary">BJIT Limited</p>
+                    <h3 className="text-xl font-bold text-blue-400">{exp.title}</h3>
+                    <p className="text-lg text-green-400">{exp.company}</p>
                   </div>
-                  <Badge variant="secondary">Nov 2024 – Feb 2025</Badge>
+                  <span className="bg-gray-700 text-gray-300 px-3 py-1 rounded text-sm">{exp.period}</span>
                 </div>
-                <ul className="space-y-2 text-sm">
-                  <li>• Gained hands-on experience in AI, web development, and REST APIs</li>
-                  <li>• Worked on projects using Python, FastAPI</li>
-                  <li>• Practiced Agile development, using Git, GitHub, and Redmine</li>
-                  <li>• Strengthened skills in OOP, DSA, and problem-solving</li>
-                  <li>• Participated in code reviews, presentations, and technical discussions</li>
-                  <li>• Improved skills in clean code writing and debugging</li>
-                  <li>• Familiar with CI/CD using Docker, Jenkins, and Kubernetes</li>
+                <ul className="space-y-2 text-sm text-gray-300">
+                  {exp.tasks.map((task, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="text-green-400 mt-1">•</span>
+                      <span>{task}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
-            </Card>
-
-            <Card className="p-6 bg-card border-primary transition-all duration-300 hover:shadow-lg">
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-bold text-accent">Undergraduate Researcher</h3>
-                    <p className="text-lg text-primary">NSTU</p>
-                  </div>
-                  <Badge variant="secondary">Mar 2023 – Feb 2024</Badge>
-                </div>
-                <div>
-                  <h4 className="font-bold text-primary">Building Crack Detection Using Deep Learning</h4>
-                  <ul className="space-y-2 text-sm mt-2">
-                    <li>• Developed efficient crack detection system using VGG-16 and transfer learning</li>
-                    <li>• Processed dataset of 6000 images for crack classification</li>
-                    <li>• Fine-tuned CNN models achieving high accuracy</li>
-                  </ul>
-                </div>
-              </div>
-            </Card>
+            ))}
           </div>
         )
-
       case "projects":
         return (
           <div className="space-y-6 animate-fade-in">
-            <h2 className="text-3xl font-bold text-primary">$ cd projects && ls</h2>
-            <div className="grid gap-6">
-              {projects.map((project, index) => (
+            <h2 className="text-3xl font-bold text-green-400">$ cd projects && ls</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+              {projects.map((project, idx) => (
                 <a
-                  key={index}
+                  key={idx}
                   href={project.link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block hover:no-underline"
-                  aria-label={`View ${project.title} project`}
                 >
-                  <Card className="p-6 bg-card border-primary hover:border-accent transition-all duration-300 hover:shadow-lg">
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-start">
-                        <h3 className="text-xl font-bold text-accent">{project.title}</h3>
-                        <ExternalLink className="w-5 h-5 text-primary" aria-hidden="true" />
-                      </div>
-                      <p className="text-sm">{project.description}</p>
-                      <div>
-                        <h4 className="font-bold text-primary mb-2">Key Features:</h4>
-                        <ul className="text-sm space-y-1">
-                          {project.features.map((feature, idx) => (
-                            <li key={idx}>• {feature}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {project.technologies.map((tech, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {tech}
-                          </Badge>
-                        ))}
-                      </div>
+                  <div className="p-6 bg-gray-800/80 border-2 border-green-500 rounded-lg hover:border-blue-400 transition-all duration-300 shadow-lg hover:shadow-blue-400/40 hover:scale-[1.02]">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="text-xl font-bold text-blue-400">{project.title}</h3>
+                      <span className="text-green-400 text-xl">🔗</span>
                     </div>
-                  </Card>
+                    <p className="text-sm text-gray-300 mb-4">{project.description}</p>
+                    <div className="mb-4">
+                      <h4 className="font-bold text-green-400 mb-2">Key Features:</h4>
+                      <ul className="text-sm text-gray-300 space-y-1">
+                        {project.features.map((feature, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-green-400 mt-1">•</span>
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {project.technologies.map((tech, i) => (
+                        <span
+                          key={i}
+                          className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-xs hover:bg-green-500 hover:text-gray-900 transition-colors"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </a>
               ))}
             </div>
           </div>
         )
-
       case "education":
         return (
           <div className="space-y-6 animate-fade-in">
-            <h2 className="text-3xl font-bold text-primary">$ cat education.log</h2>
-            <Card className="p-6 bg-card border-primary transition-all duration-300 hover:shadow-lg">
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-bold text-accent">Bachelor of Science (Engg.)</h3>
-                    <p className="text-lg text-primary">Information and Communication Engineering</p>
-                    <p className="text-sm">Noakhali Science and Technology University</p>
-                  </div>
-                  <Badge variant="secondary">Jan 2019 – May 2024</Badge>
+            <h2 className="text-3xl font-bold text-green-400">$ cat education.log</h2>
+            <div className="p-6 bg-gray-800/80 border-2 border-green-500 rounded-lg shadow-lg hover:shadow-green-500/40 transition-shadow duration-300">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-blue-400">
+                    B.Sc. in Information and Communication Engineering
+                  </h3>
+                  <p className="text-lg text-green-400">Noakhali Science and Technology University</p>
                 </div>
-                <div className="text-lg">
-                  <span className="text-primary font-bold">CGPA:</span> 3.38/4.00 (with honors)
+                <span className="bg-gray-700 text-gray-300 px-3 py-1 rounded text-sm">Jan 2019 – May 2024</span>
+              </div>
+              <div className="text-lg text-gray-300">
+                <span className="text-green-400 font-bold">CGPA:</span> 3.38/4.00 (with honors)
+              </div>
+            </div>
+
+            <div className="p-6 bg-gray-800/80 border-2 border-green-500 rounded-lg shadow-lg hover:shadow-green-500/40 transition-shadow duration-300">
+              <h3 className="text-xl font-bold text-blue-400 mb-4">Certifications</h3>
+              <div className="space-y-2 text-sm text-gray-300">
+                <div className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏆</span>
+                  <span>Trainee Software Engineer (AI) - BJIT LTD.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏭</span>
+                  <span>Industrial Attachment at BJIT LTD.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">💾</span>
+                  <span>HackerRank SQL Certification</span>
                 </div>
               </div>
-            </Card>
+            </div>
 
-            <Card className="p-6 bg-card border-primary transition-all duration-300 hover:shadow-lg">
-              <h3 className="text-xl font-bold text-accent mb-4">Certifications</h3>
-              <div className="space-y-2">
-                <div>• Trainee Software Engineer (AI) - BJIT LTD.</div>
-                <div>• Industrial Attachment at BJIT LTD.</div>
-                <div>• HackerRank SQL</div>
+            <div className="p-6 bg-gray-800/80 border-2 border-green-500 rounded-lg shadow-lg hover:shadow-green-500/40 transition-shadow duration-300">
+              <h3 className="text-xl font-bold text-blue-400 mb-4">Competitive Programming Achievements</h3>
+              <div className="space-y-3 text-sm text-gray-300">
+                <div className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏅</span>
+                  <span>Problem Setter - ICE TECHCOMBAT Programming Contest 2023, NSTU</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏅</span>
+                  <span>Problem Setter - ICE 6th Batch Farewell Programming Contest 2023, NSTU</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-400 mt-1">🎯</span>
+                  <span>Contestant - CUET Inter University Programming Contest 2024</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-400 mt-1">🎯</span>
+                  <span>ICPC Asia Dhaka Regional Site Online Preliminary 2022, 2023</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-yellow-400 mt-1">🥉</span>
+                  <span>4th Place - Intra NSTU Programming Contest 2023</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-gray-400 mt-1">🏆</span>
+                  <span>12th Place - Intra NSTU Programming Contest 2022</span>
+                </div>
               </div>
-            </Card>
-
-            <Card className="p-6 bg-card border-primary transition-all duration-300 hover:shadow-lg">
-              <h3 className="text-xl font-bold text-accent mb-4">Competitive Programming Achievements</h3>
-              <div className="space-y-2 text-sm">
-                <div>• Problem setter - ICE TECHCOMBAT Programming Contest 2023, NSTU</div>
-                <div>• Problem setter - ICE 6th Batch Farewell Programming Contest 2023, NSTU</div>
-                <div>• Contestant - CUET Inter University Programming Contest 2024</div>
-                <div>• Participated in ICPC Asia Dhaka Regional Site Online Preliminary Contest 2022, 2023</div>
-                <div>• 4th place - Intra NSTU Programming Contest 2023</div>
-                <div>• 12th place - Intra NSTU Programming Contest 2022</div>
-              </div>
-            </Card>
+            </div>
           </div>
         )
-
       case "skills":
         return (
           <div className="space-y-6 animate-fade-in">
-            <h2 className="text-3xl font-bold text-primary">$ ./skills --list</h2>
+            <h2 className="text-3xl font-bold text-green-400">$ ./skills --list</h2>
+            <div className="p-6 bg-gray-800/80 border-2 border-green-500 rounded-lg">
+              <h3 className="text-xl font-bold text-blue-400 mb-4">Proficiency Levels</h3>
+              <div className="grid gap-6 sm:grid-cols-2">
+                {Object.entries(skillsWithLevels).map(([category, skillList]) => (
+                  <div key={category} className="space-y-4">
+                    <h4 className="font-bold text-green-400">{category}</h4>
+                    <div className="space-y-3">
+                      {skillList.map((skill, idx) => (
+                        <AnimatedSkillBar key={idx} skill={skill.name} level={skill.level} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="grid gap-6 sm:grid-cols-2">
               {Object.entries(skills).map(([category, skillList]) => (
-                <Card key={category} className="p-6 bg-card border-primary transition-all duration-300 hover:shadow-lg">
-                  <h3 className="text-xl font-bold text-accent mb-4">{category}</h3>
+                <div
+                  key={category}
+                  className="p-6 bg-gray-800/80 border-2 border-green-500 rounded-lg hover:border-blue-400 transition-all duration-300 shadow-lg hover:shadow-blue-400/40"
+                >
+                  <h3 className="text-xl font-bold text-blue-400 mb-4">{category}</h3>
                   <div className="flex flex-wrap gap-2">
-                    {skillList.map((skill, index) => (
-                      <Badge key={index} variant="outline" className="text-sm">
+                    {skillList.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-sm hover:bg-green-500 hover:text-gray-900 transition-all duration-200 cursor-default"
+                      >
                         {skill}
-                      </Badge>
+                      </span>
                     ))}
                   </div>
-                </Card>
+                </div>
               ))}
             </div>
           </div>
         )
-
       case "contact":
         return (
           <div className="space-y-6 animate-fade-in">
-            <h2 className="text-3xl font-bold text-primary">$ contact --info</h2>
-            <Card className="p-6 bg-card border-primary transition-all duration-300 hover:shadow-lg">
+            <h2 className="text-3xl font-bold text-green-400">$ contact --info</h2>
+            <div className="p-6 bg-gray-800/80 border-2 border-green-500 rounded-lg shadow-lg hover:shadow-green-500/40 transition-shadow duration-300">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-accent">Get In Touch</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <Mail className="w-5 h-5 text-primary" aria-hidden="true" />
-                      <a
-                        href="mailto:sohanurrahman621@gmail.com"
-                        className="hover:text-accent transition-colors"
-                        aria-label="Email Sohanur Rahman"
-                      >
+                  <h3 className="text-xl font-bold text-blue-400">Get In Touch</h3>
+                  <div className="space-y-3 text-sm text-gray-300">
+                    <div className="flex items-center gap-3 p-2 rounded hover:bg-gray-700/50 transition-colors">
+                      <span className="text-green-400 text-lg">📧</span>
+                      <a href="mailto:sohanurrahman621@gmail.com" className="hover:text-blue-400 transition-colors">
                         sohanurrahman621@gmail.com
                       </a>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Phone className="w-5 h-5 text-primary" aria-hidden="true" />
-                      <a
-                        href="tel:+8801879957329"
-                        className="hover:text-accent transition-colors"
-                        aria-label="Call Sohanur Rahman"
-                      >
+                    <div className="flex items-center gap-3 p-2 rounded hover:bg-gray-700/50 transition-colors">
+                      <span className="text-green-400 text-lg">📱</span>
+                      <a href="tel:+8801879957329" className="hover:text-blue-400 transition-colors">
                         +8801879957329
                       </a>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <MapPin className="w-5 h-5 text-primary" aria-hidden="true" />
+                    <div className="flex items-center gap-3 p-2 rounded hover:bg-gray-700/50 transition-colors">
+                      <span className="text-green-400 text-lg">📍</span>
                       <span>Mohakhali, Dhaka, Bangladesh</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Github className="w-5 h-5 text-primary" aria-hidden="true" />
+                    <div className="flex items-center gap-3 p-2 rounded hover:bg-gray-700/50 transition-colors">
+                      <span className="text-green-400 text-lg">🐙</span>
                       <a
                         href="https://github.com/SoRaS20"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-accent transition-colors"
-                        aria-label="Visit Sohanur Rahman's GitHub profile"
+                        className="hover:text-blue-400 transition-colors"
                       >
                         github.com/SoRaS20
                       </a>
@@ -490,127 +658,112 @@ export default function Portfolio() {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-accent">Coding Profiles</h3>
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <span className="text-primary">Codeforces:</span>
-                      <a
-                        href="https://codeforces.com/profile/TheEnd"
-                        className="ml-2 hover:text-accent transition-colors"
-                        aria-label="Visit Sohanur Rahman's Codeforces profile"
+                  <h3 className="text-xl font-bold text-blue-400">Coding Profiles</h3>
+                  <div className="space-y-2 text-sm text-gray-300">
+                    {[
+                      { name: "Codeforces", handle: "TheEnd", url: "https://codeforces.com/profile/TheEnd", icon: "⚔️" },
+                      { name: "LeetCode", handle: "SoRaS_20", url: "https://leetcode.com/SoRaS_20", icon: "🧩" },
+                      { name: "Vjudge", handle: "lazy_coder0", url: "https://vjudge.net/user/lazy_coder0", icon: "⚖️" },
+                      {
+                        name: "StopStalk",
+                        handle: "SoRaS",
+                        url: "https://www.stopstalk.com/user/profile/SoRaS",
+                        icon: "📊",
+                      },
+                    ].map((profile, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-3 p-2 rounded hover:bg-gray-700/50 transition-colors"
                       >
-                        TheEnd
-                      </a>
-                    </div>
-                    <div>
-                      <span className="text-primary">LeetCode:</span>
-                      <a
-                        href="https://leetcode.com/SoRaS_20"
-                        className="ml-2 hover:text-accent transition-colors"
-                        aria-label="Visit Sohanur Rahman's LeetCode profile"
-                      >
-                        SoRaS_20
-                      </a>
-                    </div>
-                    <div>
-                      <span className="text-primary">Vjudge:</span>
-                      <a
-                        href="https://vjudge.net/user/lazy_coder0"
-                        className="ml-2 hover:text-accent transition-colors"
-                        aria-label="Visit Sohanur Rahman's Vjudge profile"
-                      >
-                        lazy_coder0
-                      </a>
-                    </div>
-                    <div>
-                      <span className="text-primary">StopStalk:</span>
-                      <a
-                        href="https://www.stopstalk.com/user/profile/SoRaS"
-                        className="ml-2 hover:text-accent transition-colors"
-                        aria-label="Visit Sohanur Rahman's StopStalk profile"
-                      >
-                        SoRaS
-                      </a>
-                    </div>
+                        <span className="text-green-400">{profile.icon}</span>
+                        <span className="text-green-400">{profile.name}:</span>
+                        <a
+                          href={profile.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-blue-400 transition-colors"
+                        >
+                          {profile.handle}
+                        </a>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
+            <div className="text-center p-4 bg-gray-800/50 border border-green-500/30 rounded-lg">
+              <p className="text-gray-300 text-sm">
+                <span className="text-green-400">💡 Fun Fact:</span> Solved 1000+ algorithmic problems across multiple
+                platforms!
+              </p>
+            </div>
           </div>
         )
-
       default:
-        return null
+        return (
+          <div className="text-center text-gray-400">
+            <h2 className="text-2xl font-bold mb-4">Section Under Construction</h2>
+            <p>This section is being built. Please check back soon!</p>
+          </div>
+        )
     }
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono">
-      <div className="flex flex-col md:flex-row">
-        {/* Sidebar Navigation */}
+    <div className="min-h-screen bg-gray-900 text-gray-100 relative overflow-hidden">
+      <MatrixRain />
+      <div className="flex flex-col md:flex-row relative z-10">
         <nav
-          className="w-full md:w-64 bg-sidebar border-b md:border-r border-sidebar-border p-4 md:min-h-screen"
+          className="w-full md:w-64 bg-gray-800/95 border-b md:border-r border-gray-700 p-4 md:min-h-screen"
           aria-label="Main navigation"
         >
           <div className="space-y-2">
-            <div className="text-lg font-bold text-sidebar-primary mb-6">TERMINAL_PORTFOLIO.EXE</div>
-            {sections.map((section) => {
-              const Icon = section.icon
-              return (
-                <Button
-                  key={section.id}
-                  variant={currentSection === section.id ? "default" : "ghost"}
-                  className="w-full justify-start text-left font-mono transition-all duration-200 hover:bg-accent/10"
-                  onClick={() => setCurrentSection(section.id)}
-                  aria-current={currentSection === section.id ? "page" : undefined}
-                >
-                  <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
-                  {section.label}
-                </Button>
-              )
-            })}
+            <div className="text-lg font-bold text-green-400 mb-6 flex items-center gap-2">
+              <span>🖥️</span>
+              TERMINAL_PORTFOLIO.EXE
+            </div>
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                className={`w-full text-left font-mono py-2 px-4 rounded transition-all duration-200 hover:bg-blue-500/20 hover:translate-x-1 ${
+                  currentSection === section.id
+                    ? "bg-green-500/50 text-black border border-green-400"
+                    : "text-gray-300 hover:text-green-400"
+                }`}
+                onClick={() => setCurrentSection(section.id)}
+                aria-current={currentSection === section.id ? "page" : undefined}
+              >
+                <span className="inline-block mr-2">{section.icon}</span>
+                {section.label}
+              </button>
+            ))}
+            <div className="mt-8 p-3 bg-gray-800/50 rounded border border-green-500/30">
+              <div className="text-xs text-gray-300 space-y-1">
+                <div className="flex justify-between">
+                  <span>CPU:</span>
+                  <span className="text-green-500">█████░ 85%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>RAM:</span>
+                  <span className="text-blue-400">███░░░ 60%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>NET:</span>
+                  <span className="text-green-400">██████ 100%</span>
+                </div>
+              </div>
+            </div>
           </div>
         </nav>
-
-        {/* Main Content */}
-        <main className="flex-1 p-4 md:p-8" aria-live="polite">
+        <main className="flex-1 p-4 md:p-8 bg-gray-900/95" aria-live="polite">
           <div className="max-w-4xl mx-auto">{renderSection()}</div>
         </main>
       </div>
-
-      {/* Terminal Footer */}
-      <footer className="bg-sidebar border-t border-sidebar-border p-4">
-        <div className="text-center text-sm">
-          <span className="text-sidebar-primary">sohanur@portfolio:~$ </span>
-          <span className="text-sidebar-foreground">Built with Next.js, TypeScript & Terminal Love</span>
-          <span className="animate-blink text-sidebar-primary">_</span>
-        </div>
+      <footer className="bg-gray-800/95 border-t border-gray-700 p-4 text-center text-sm text-gray-300 relative z-10">
+        <span className="text-green-400">sohanur@portfolio:~$ </span>
+        Built with React, Tailwind & Terminal Passion
+        <span className="animate-pulse text-green-400">_</span>
       </footer>
-
-      {/* Inline CSS for animations */}
-      <style jsx>{`
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-in-out;
-        }
-        .animate-blink {
-          animation: blink 0.5s step-end infinite;
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes blink {
-          50% {
-            opacity: 0;
-          }
-        }
-      `}</style>
     </div>
   )
 }
