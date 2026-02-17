@@ -827,7 +827,7 @@ export default function Portfolio() {
             </GlowCard>
 
             {/* Competitive Programming Achievements */}
-            <GlowCard className="p-6">
+            {/* <GlowCard className="p-6">
               <h3 className="text-xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
                 <span>⚔️</span> Competitive Programming Achievements
               </h3>
@@ -846,7 +846,7 @@ export default function Portfolio() {
                   </div>
                 ))}
               </div>
-            </GlowCard>
+            </GlowCard> */}
           </div>
         )
 
