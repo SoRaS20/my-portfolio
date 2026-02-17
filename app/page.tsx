@@ -797,13 +797,13 @@ export default function Portfolio() {
                   <span>📅</span> Jan 2019 – May 2024
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-lg">
+              {/* <div className="flex items-center gap-2 text-lg">
                 <span className="text-green-400 font-bold">CGPA:</span>
                 <span className="text-gray-300">3.38/4.00</span>
                 <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border border-yellow-500/50 rounded text-yellow-400 text-sm">
                   with honors
                 </span>
-              </div>
+              </div> */}
             </GlowCard>
 
             {/* Certifications */}
