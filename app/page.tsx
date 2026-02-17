@@ -456,7 +456,7 @@ export default function Portfolio() {
                 <div className="absolute -inset-4 bg-gradient-to-r from-green-500 via-cyan-500 to-green-500 rounded-full blur-xl opacity-40 group-hover:opacity-70 animate-pulse transition-all duration-1000" />
                 <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500 to-green-500 rounded-full opacity-50 group-hover:opacity-80 transition-all duration-500 animate-spin-slow" style={{ animationDuration: '8s' }} />
                 <img
-                  src="/software-engineer-portrait.jpg"
+                  src="/software-engineer-portrait.png"
                   alt="Sohanur Rahman"
                   className="relative w-48 h-48 rounded-full border-4 border-green-400 shadow-2xl shadow-green-500/30 transition-all duration-500 group-hover:scale-105 group-hover:border-cyan-400 object-cover"
                   loading="lazy"
@@ -1053,8 +1053,8 @@ export default function Portfolio() {
                 <div
                   key={idx}
                   className={`${line.type === 'error' ? 'text-red-400' :
-                      line.type === 'success' ? 'text-green-400' :
-                        'text-gray-400'
+                    line.type === 'success' ? 'text-green-400' :
+                      'text-gray-400'
                     }`}
                 >
                   {line.text}
