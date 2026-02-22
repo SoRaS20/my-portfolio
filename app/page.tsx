@@ -540,7 +540,7 @@ function Footer() {
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-xs font-bold text-white">SR</div>
           <span>Sohanur Rahman</span>
         </div>
-        <p>Built with <span className="text-rose-400">♥</span> using Next.js &amp; Tailwind CSS</p>
+        {/* <p>Built with <span className="text-rose-400">♥</span> using Next.js &amp; Tailwind CSS</p> */}
         <p>© 2026 — All rights reserved</p>
       </div>
     </footer>
