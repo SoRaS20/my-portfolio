@@ -363,6 +363,14 @@ function Projects() {
 function Experience() {
   const items = [
     {
+      role: "Software Engineer", company: "Nazihar IT Solution Ltd.", period: "Feb 2025 – Present", icon: "🚀", current: true,
+      points: [
+        "Collaborating in the design and development of a secure and configurable digital onboarding platform for banks, enabling automated KYC verification and dynamic workflow management",
+        "Building a scalable API-driven architecture using Spring Boot and relational database design",
+        "Working on the 12iD (Digital Identity & eKYC platform) — a secure mobile identity solution integrated with banking and online services",
+      ],
+    },
+    {
       role: "Trainee Software Engineer (AI)", company: "BJIT Limited", period: "Nov 2024 – Feb 2025", icon: "💼",
       points: ["Gained hands-on experience in AI, web development, and REST APIs", "Worked on Python & FastAPI for scalable backend solutions", "Practiced Agile development using Git, GitHub, and Redmine", "Strengthened skills in OOP, DSA, and problem-solving techniques", "Familiar with automating CI/CD using Docker, Jenkins, and Kubernetes"],
     },
@@ -389,13 +397,21 @@ function Experience() {
           <div className="space-y-10">
             {items.map((exp, i) => (
               <div key={i} className={`relative pl-14 reveal reveal-delay-${i + 1}`}>
-                <div className="timeline-dot absolute left-3 top-5" />
-                <div className="glass-card p-7">
+                <div className={`timeline-dot absolute left-3 top-5 ${(exp as any).current ? "shadow-[0_0_12px_4px_rgba(99,102,241,0.7)]" : ""}`} />
+                <div className={`glass-card p-7 ${(exp as any).current ? "border-indigo-500/30" : ""}`}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{exp.icon}</span>
                       <div>
-                        <h3 className="font-bold text-white text-base">{exp.role}</h3>
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <h3 className="font-bold text-white text-base">{exp.role}</h3>
+                          {(exp as any).current && (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-dot-blink flex-shrink-0" />
+                              Current
+                            </span>
+                          )}
+                        </div>
                         <p className="text-indigo-300 text-sm font-medium">{exp.company}</p>
                       </div>
                     </div>
@@ -413,6 +429,7 @@ function Experience() {
               </div>
             ))}
           </div>
+
         </div>
         {/* Certifications */}
         <div className="mt-16 reveal">
