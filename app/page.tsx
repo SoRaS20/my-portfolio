@@ -462,7 +462,7 @@ function Contact() {
   const socials = [
     { icon: <Github size={20} />, href: "https://github.com/SoRaS20", label: "GitHub" },
     { icon: <Mail size={20} />, href: "mailto:sohanurrahman621@gmail.com", label: "Email" },
-    { icon: <Linkedin size={20} />, href: "https://linkedin.com/in/sohanurrahman", label: "LinkedIn" },
+    { icon: <Linkedin size={20} />, href: "https://www.linkedin.com/in/sohanur-rahman-756503193", label: "LinkedIn" },
     { icon: <ExternalLink size={20} />, href: "https://leetcode.com/SoRaS_20", label: "LeetCode" },
   ]
   return (
