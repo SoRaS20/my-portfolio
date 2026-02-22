@@ -60,14 +60,14 @@ function Navbar() {
         </nav>
         <div className="hidden md:flex items-center gap-3">
           <a href="https://github.com/SoRaS20" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white/90 transition-colors p-1.5"><Github size={18} /></a>
-          <a href="mailto:sohanurrahman621@gmail.com" className="btn-primary text-sm py-2 px-4">Hire Me</a>
+          <a href="https://mail.google.com/mail/?view=cm&to=sohanurrahman621@gmail.com&su=Hire%20Inquiry" target="_blank" rel="noopener noreferrer" className="btn-primary text-sm py-2 px-4">Hire Me</a>
         </div>
         <button className="md:hidden text-white/70 hover:text-white p-1" onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
       </div>
       {open && (
         <div className="md:hidden absolute top-full left-0 right-0 glass border-b border-white/8 py-4 px-6 flex flex-col gap-3">
           {links.map(l => <button key={l} onClick={() => scrollTo(l)} className="text-white/70 hover:text-white text-left py-2 text-base font-medium transition-colors">{l}</button>)}
-          <a href="mailto:sohanurrahman621@gmail.com" className="btn-primary text-sm py-2.5 text-center mt-2">Hire Me</a>
+          <a href="https://mail.google.com/mail/?view=cm&to=sohanurrahman621@gmail.com&su=Hire%20Inquiry" target="_blank" rel="noopener noreferrer" className="btn-primary text-sm py-2.5 text-center mt-2">Hire Me</a>
         </div>
       )}
     </header>
