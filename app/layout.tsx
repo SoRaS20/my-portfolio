@@ -1,37 +1,36 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { VT323 } from "next/font/google"
+import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
 
-const vt323 = VT323({
-  weight: "400",
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-vt323",
+  variable: "--font-inter",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
-  title: "Sohanur Rahman - AI Engineer & Developer",
+  title: "Sohanur Rahman — AI Engineer & Full-Stack Developer",
   description:
-    "Dynamic retro-terminal portfolio of Sohanur Rahman, Trainee Software Engineer specializing in AI, machine learning, and full-stack development. Featuring interactive terminal interface with matrix rain effects.",
+    "Personal portfolio of Sohanur Rahman — AI & ML Engineer, Full-Stack Developer, and Competitive Programmer. Building intelligent, high-performance software solutions.",
   keywords:
-    "Sohanur Rahman, Software Engineer, AI, Machine Learning, Web Development, Portfolio, BJIT Limited, Competitive Programming",
+    "Sohanur Rahman, AI Engineer, Machine Learning, Full-Stack Developer, Next.js, Python, FastAPI, Portfolio, BJIT Limited",
   authors: [{ name: "Sohanur Rahman" }],
   creator: "Sohanur Rahman",
   openGraph: {
-    title: "Sohanur Rahman - AI Engineer & Developer",
+    title: "Sohanur Rahman — AI Engineer & Full-Stack Developer",
     description:
-      "Interactive terminal-style portfolio showcasing AI projects, competitive programming achievements, and software engineering expertise.",
+      "AI & ML engineer building intelligent, high-performance solutions. Explore projects, experience, and skills.",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sohanur Rahman - AI Engineer & Developer",
-    description: "Interactive terminal-style portfolio showcasing AI projects and software engineering expertise.",
+    title: "Sohanur Rahman — AI Engineer & Full-Stack Developer",
+    description: "AI & ML engineer building intelligent software solutions.",
   },
-  generator: "v0.app",
 }
 
 export default function RootLayout({
@@ -40,8 +39,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={vt323.variable}>
-      <body className="font-mono scan-lines bg-black text-green-400 antialiased">
+    <html lang="en" className={inter.variable}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className="noise" style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#05050f", color: "#f1f5f9" }}>
         <Suspense fallback={null}>{children}</Suspense>
         <Analytics />
       </body>
