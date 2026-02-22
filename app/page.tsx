@@ -129,7 +129,7 @@ function Hero() {
             </div>
             {/* Stats row */}
             <div className="flex gap-8 justify-center lg:justify-start pt-2 animate-fade-in" style={{ animationDelay: "0.55s", animationFillMode: "both" }}>
-              {[{ n: 3, label: "Projects" }, { n: 1000, label: "Problems Solved" }, { n: 15, label: "Technologies" }].map(s => (
+              {[{ n: 5, label: "Projects" }, { n: 1000, label: "Problems Solved" }, { n: 15, label: "Technologies" }].map(s => (
                 <div key={s.label} className="text-center">
                   <div className="text-2xl font-bold gradient-text"><Counter to={s.n} /></div>
                   <div className="text-xs text-white/40 mt-0.5 font-medium">{s.label}</div>
