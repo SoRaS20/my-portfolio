@@ -191,10 +191,10 @@ function About() {
             <h3 className="text-lg font-semibold text-white mb-5">Who I Am</h3>
             <p className="text-white/60 leading-relaxed mb-5">
               I&apos;m a passionate <span className="text-indigo-300 font-medium">Software Engineer</span> specializing in AI, machine learning, and full-stack development. Currently at{" "}
-              <span className="text-violet-300 font-medium">BJIT Limited</span>, I build scalable solutions that push boundaries.
+              <span className="text-violet-300 font-medium">Nazihar IT Solution Ltd.</span>, I&apos;m building a secure digital onboarding platform for banks — featuring automated KYC verification, dynamic workflow management, and the <span className="text-blue-300 font-medium">12iD eKYC platform</span> integrated with banking and online services.
             </p>
             <p className="text-white/60 leading-relaxed mb-7">
-              With a B.Sc. in Information and Communication Engineering from <span className="text-blue-300 font-medium">NSTU</span> and a deep love for competitive programming (1000+ problems solved), I thrive at the intersection of theoretical Computer Science and real-world engineering.
+              With a B.Sc. in Information and Communication Engineering from <span className="text-blue-300 font-medium">NSTU</span> and a deep love for competitive programming (1000+ problems solved), I thrive at the intersection of AI research and real-world software engineering.
             </p>
             <div className="space-y-3">
               {contactLinks.map((c, i) => (
