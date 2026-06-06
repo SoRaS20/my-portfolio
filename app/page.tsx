@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Github, Mail, ExternalLink, Menu, X, MapPin, Phone, ChevronRight, Code2, Cpu, Globe, Wrench, ArrowUpRight, Linkedin } from "lucide-react"
+import { useTheme } from "next-themes"
+import { Github, Mail, ExternalLink, Menu, X, MapPin, Phone, ChevronRight, Code2, Cpu, Globe, Wrench, ArrowUpRight, Linkedin, Sun, Moon } from "lucide-react"
 
 /* ── Scroll Reveal Hook ─────────────────────────────── */
 function useScrollReveal() {
@@ -13,6 +14,22 @@ function useScrollReveal() {
     document.querySelectorAll(".reveal").forEach(el => observer.observe(el))
     return () => observer.disconnect()
   }, [])
+}
+
+/* ── Theme Toggle ────────────────────────────────────── */
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  return (
+    <button
+      className="theme-toggle"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+    >
+      {mounted ? theme === "dark" ? <Sun size={15} /> : <Moon size={15} /> : <div className="w-4 h-4" />}
+    </button>
+  )
 }
 
 /* ── Animated Counter ───────────────────────────────── */
@@ -49,24 +66,28 @@ function Navbar() {
   const links = ["About", "Skills", "Projects", "Experience", "Contact"]
   const scrollTo = (id: string) => { document.getElementById(id.toLowerCase())?.scrollIntoView({ behavior: "smooth" }); setOpen(false) }
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "py-3 backdrop-blur-xl bg-[rgba(5,5,15,0.85)] border-b border-white/5 shadow-xl shadow-black/20" : "py-5"}`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "py-3 bg-navbar border-b border-border shadow-xl shadow-black/20" : "py-5"}`}>
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
         <button onClick={() => scrollTo("hero")} className="flex items-center gap-2.5 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-all">SR</div>
-          <span className="font-semibold text-white/90 hidden sm:block">Sohanur Rahman</span>
+          <span className="font-semibold text-body hidden sm:block">Sohanur Rahman</span>
         </button>
         <nav className="hidden md:flex items-center gap-7">
           {links.map(l => <button key={l} onClick={() => scrollTo(l)} className="nav-link">{l}</button>)}
         </nav>
-        <div className="hidden md:flex items-center gap-3">
-          <a href="https://github.com/SoRaS20" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white/90 transition-colors p-1.5"><Github size={18} /></a>
+        <div className="hidden md:flex items-center gap-2">
+          <ThemeToggle />
+          <a href="https://github.com/SoRaS20" target="_blank" rel="noopener noreferrer" className="text-faint hover:text-body transition-colors p-1.5"><Github size={18} /></a>
           <a href="https://mail.google.com/mail/?view=cm&to=sohanurrahman621@gmail.com&su=Hire%20Inquiry" target="_blank" rel="noopener noreferrer" className="btn-primary text-sm py-2 px-4">Hire Me</a>
         </div>
-        <button className="md:hidden text-white/70 hover:text-white p-1" onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
+        <div className="flex items-center gap-1.5 md:hidden">
+          <ThemeToggle />
+          <button className="text-muted hover:text-body p-1" onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
+        </div>
       </div>
       {open && (
-        <div className="md:hidden absolute top-full left-0 right-0 glass border-b border-white/8 py-4 px-6 flex flex-col gap-3">
-          {links.map(l => <button key={l} onClick={() => scrollTo(l)} className="text-white/70 hover:text-white text-left py-2 text-base font-medium transition-colors">{l}</button>)}
+        <div className="md:hidden absolute top-full left-0 right-0 glass border-b border-border py-4 px-6 flex flex-col gap-3">
+          {links.map(l => <button key={l} onClick={() => scrollTo(l)} className="text-muted hover:text-body text-left py-2 text-base font-medium transition-colors">{l}</button>)}
           <a href="https://mail.google.com/mail/?view=cm&to=sohanurrahman621@gmail.com&su=Hire%20Inquiry" target="_blank" rel="noopener noreferrer" className="btn-primary text-sm py-2.5 text-center mt-2">Hire Me</a>
         </div>
       )}
@@ -78,15 +99,87 @@ function Navbar() {
 function OrbBg() {
   return (
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-      <div className="animate-orb-pulse absolute -top-48 -left-32 w-[600px] h-[600px] rounded-full" style={{ background: "radial-gradient(circle, rgba(99,102,241,0.22) 0%, transparent 70%)" }} />
-      <div className="animate-orb-pulse-2 absolute top-1/3 -right-48 w-[500px] h-[500px] rounded-full" style={{ background: "radial-gradient(circle, rgba(167,139,250,0.17) 0%, transparent 70%)" }} />
-      <div className="animate-orb-pulse-3 absolute bottom-0 left-1/3 w-[550px] h-[550px] rounded-full" style={{ background: "radial-gradient(circle, rgba(59,130,246,0.14) 0%, transparent 70%)" }} />
-      <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)", backgroundSize: "42px 42px" }} />
+      <div
+        className="animate-orb-pulse absolute -top-48 -left-32 w-[600px] h-[600px] rounded-full"
+        style={{ background: "radial-gradient(circle, var(--orb-1) 0%, transparent 70%)" }}
+      />
+      <div
+        className="animate-orb-pulse-2 absolute top-1/3 -right-48 w-[500px] h-[500px] rounded-full"
+        style={{ background: "radial-gradient(circle, var(--orb-2) 0%, transparent 70%)" }}
+      />
+      <div
+        className="animate-orb-pulse-3 absolute bottom-0 left-1/3 w-[550px] h-[550px] rounded-full"
+        style={{ background: "radial-gradient(circle, var(--orb-3) 0%, transparent 70%)" }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: "radial-gradient(var(--dot-color) 1px, transparent 1px)",
+          backgroundSize: "42px 42px",
+        }}
+      />
     </div>
   )
 }
 
-/* ── Hero Section ───────────────────────────────────── */
+/* ── Analog Clock ──────────────────────────────────── */
+function AnalogClock() {
+  const [time, setTime] = useState(new Date())
+  useEffect(() => {
+    const t = setInterval(() => setTime(new Date()), 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  const s = time.getSeconds()
+  const m = time.getMinutes() + s / 60
+  const h = (time.getHours() % 12) + m / 60
+
+  const numbers = [
+    { n: "12", x: 50, y: 14 },
+    { n: "1", x: 68, y: 19 },
+    { n: "2", x: 82, y: 33 },
+    { n: "3", x: 87, y: 51 },
+    { n: "4", x: 82, y: 68 },
+    { n: "5", x: 68, y: 82 },
+    { n: "6", x: 50, y: 87 },
+    { n: "7", x: 32, y: 82 },
+    { n: "8", x: 18, y: 68 },
+    { n: "9", x: 13, y: 51 },
+    { n: "10", x: 18, y: 34 },
+    { n: "11", x: 32, y: 19 },
+  ]
+
+  return (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      {/* Transparent outlined hour numbers */}
+      {numbers.map(({ n, x, y }) => (
+        <text
+          key={n} x={x} y={y} textAnchor="middle" dominantBaseline="central"
+          fill="none"
+          stroke="var(--foreground)"
+          strokeWidth="1"
+          strokeOpacity="0.35"
+          fontSize="9"
+          fontWeight="700"
+          fontFamily="'Inter', sans-serif"
+        >
+          {n}
+        </text>
+      ))}
+      {/* Hour hand */}
+      <line x1="50" y1="50" x2="50" y2="32" className="stroke-body" strokeWidth="2.5" strokeLinecap="round"
+        style={{ transform: `rotate(${h * 30}deg)`, transformOrigin: "50px 50px", transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)", opacity: 0.85 }} />
+      {/* Minute hand */}
+      <line x1="50" y1="50" x2="50" y2="22" className="stroke-body" strokeWidth="1.8" strokeLinecap="round"
+        style={{ transform: `rotate(${m * 6}deg)`, transformOrigin: "50px 50px", transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)", opacity: 0.85 }} />
+      {/* Second hand */}
+      <line x1="50" y1="54" x2="50" y2="16" stroke="var(--foreground)" strokeWidth="0.8" strokeLinecap="round"
+        style={{ transform: `rotate(${s * 6}deg)`, transformOrigin: "50px 50px", transition: "transform 0.15s linear", opacity: 0.5 }} />
+      {/* Center cap */}
+      <circle cx="50" cy="50" r="2" fill="var(--foreground)" opacity="0.5" />
+    </svg>
+  )
+}
 function Hero() {
   const [role, setRole] = useState(0)
   const roles = ["AI & ML Engineer", "Full-Stack Developer", "Competitive Programmer", "Problem Solver"]
@@ -97,15 +190,15 @@ function Hero() {
   return (
     <section id="hero" className="relative min-h-screen flex items-center pt-24 pb-16 px-6">
       <div className="max-w-6xl mx-auto w-full">
-        <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-20">
+        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
           {/* Text */}
-          <div className="flex-1 text-center lg:text-left space-y-7">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase text-indigo-300 border border-indigo-500/30 bg-indigo-500/8 animate-fade-in">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-dot-blink" />
+          <div className="flex-1 text-center lg:text-left space-y-6 lg:space-y-7">
+            <div className="hero-badge animate-fade-in">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-dot-blink" />
               Available for work
             </div>
             <div className="animate-fade-in" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-white">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] text-body">
                 Hi, I&apos;m{" "}
                 <span className="gradient-text">Sohanur</span>
                 <br />Rahman
@@ -116,7 +209,7 @@ function Hero() {
                 {roles[role]}
               </p>
             </div>
-            <p className="text-white/55 text-base sm:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 animate-fade-in" style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
+            <p className="text-muted text-base sm:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 animate-fade-in" style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
               Building intelligent, high-performance solutions at the intersection of AI and modern software engineering. Passionate about turning complex problems into elegant products.
             </p>
             <div className="flex flex-wrap gap-3 justify-center lg:justify-start animate-fade-in" style={{ animationDelay: "0.4s", animationFillMode: "both" }}>
@@ -132,30 +225,34 @@ function Hero() {
               {[{ n: 5, label: "Projects" }, { n: 1000, label: "Problems Solved" }, { n: 15, label: "Technologies" }].map(s => (
                 <div key={s.label} className="text-center">
                   <div className="text-2xl font-bold gradient-text"><Counter to={s.n} /></div>
-                  <div className="text-xs text-white/40 mt-0.5 font-medium">{s.label}</div>
+                  <div className="text-xs text-muted mt-0.5 font-medium">{s.label}</div>
                 </div>
               ))}
             </div>
           </div>
           {/* Avatar */}
-          <div className="relative flex-shrink-0 animate-scale-in" style={{ animationDelay: "0.25s", animationFillMode: "both" }}>
-            <div className="avatar-ring w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-full relative animate-float" style={{ animationDuration: "9s" }}>
-              <img src="/software-engineer-portrait.png" alt="Sohanur Rahman" className="w-full h-full rounded-full object-cover border-2 border-white/10" loading="eager" />
+          <div className="relative flex-shrink-0 flex flex-col items-center animate-scale-in" style={{ animationDelay: "0.25s", animationFillMode: "both" }}>
+            <div className="avatar-ring w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 relative animate-float" style={{ animationDuration: "9s" }}>
+              <img src="/software-engineer-portrait.png" alt="Sohanur Rahman" className="w-full h-full rounded-2xl object-cover border-2 border-border shadow-lg" loading="eager" />
+              {/* Transparent clock overlay — full image size */}
+              <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                <AnalogClock />
+              </div>
             </div>
             {/* Status badge */}
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 glass px-4 py-1.5 rounded-full border border-white/10 whitespace-nowrap shadow-xl">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-dot-blink flex-shrink-0" />
-              <span className="text-xs font-medium text-white/80">Open to opportunities</span>
+            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 glass px-4 py-1.5 rounded-full shadow-lg shadow-black/5 border border-border whitespace-nowrap">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-dot-blink flex-shrink-0" />
+              <span className="text-xs font-medium text-body">Open to opportunities</span>
             </div>
             {/* Floating badge 1 */}
-            <div className="absolute -top-4 -right-6 sm:-right-10 glass px-3 py-2 rounded-xl border border-white/10 shadow-xl animate-float" style={{ animationDelay: "2s", animationDuration: "11s" }}>
-              <div className="text-2xl">🤖</div>
-              <div className="text-[10px] text-white/60 font-medium mt-0.5">AI/ML</div>
+            <div className="absolute -top-3 -right-3 sm:-right-5 glass px-3 py-2 rounded-xl shadow-lg shadow-black/5 border border-border animate-float" style={{ animationDelay: "2s", animationDuration: "11s" }}>
+              <div className="text-xl">🤖</div>
+              <div className="text-[10px] text-muted font-medium mt-0.5">AI/ML</div>
             </div>
             {/* Floating badge 2 */}
-            <div className="absolute -bottom-6 -left-4 sm:-left-10 glass px-3 py-2 rounded-xl border border-white/10 shadow-xl animate-float" style={{ animationDelay: "4s", animationDuration: "13s" }}>
-              <div className="text-2xl">⚡</div>
-              <div className="text-[10px] text-white/60 font-medium mt-0.5">Next.js</div>
+            <div className="absolute -bottom-5 -left-3 sm:-left-5 glass px-3 py-2 rounded-xl shadow-lg shadow-black/5 border border-border animate-float" style={{ animationDelay: "4s", animationDuration: "13s" }}>
+              <div className="text-xl">⚡</div>
+              <div className="text-[10px] text-muted font-medium mt-0.5">Next.js</div>
             </div>
           </div>
         </div>
@@ -183,31 +280,31 @@ function About() {
       <div className="max-w-6xl mx-auto">
         <div className="reveal text-center mb-16">
           <div className="section-label justify-center"><span>About Me</span></div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white">My <span className="gradient-text">Story</span></h2>
+          <h2 className="text-4xl sm:text-5xl font-bold text-body">My <span className="gradient-text">Story</span></h2>
         </div>
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Bio card */}
           <div className="glass-card p-8 reveal reveal-delay-1">
-            <h3 className="text-lg font-semibold text-white mb-5">Who I Am</h3>
-            <p className="text-white/60 leading-relaxed mb-5">
+            <h3 className="text-lg font-semibold text-body mb-5">Who I Am</h3>
+            <p className="text-muted leading-relaxed mb-5">
               I&apos;m a passionate <span className="text-indigo-300 font-medium">Software Engineer</span> specializing in AI, machine learning, and full-stack development. Currently at{" "}
               <span className="text-violet-300 font-medium">Nazihar IT Solution Ltd.</span>, I&apos;m building a secure digital onboarding platform for banks — featuring automated KYC verification, dynamic workflow management, and the <span className="text-blue-300 font-medium">12iD eKYC platform</span> integrated with banking and online services.
             </p>
-            <p className="text-white/60 leading-relaxed mb-7">
+            <p className="text-muted leading-relaxed mb-7">
               With a B.Sc. in Information and Communication Engineering from <span className="text-blue-300 font-medium">NSTU</span> and a deep love for competitive programming (1000+ problems solved), I thrive at the intersection of AI research and real-world software engineering.
             </p>
             <div className="space-y-3">
               {contactLinks.map((c, i) => (
                 c.href ? (
                   <a key={i} href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-sm text-white/50 hover:text-white/90 group transition-colors">
-                    <span className="text-indigo-400 group-hover:text-violet-400 transition-colors">{c.icon}</span>
-                    <span className="group-hover:underline underline-offset-2">{c.text}</span>
-                    <ArrowUpRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
+                    className="flex items-center gap-3 text-sm text-muted hover:text-body group transition-colors py-1">
+                    <span className="text-indigo-400 group-hover:text-violet-400 transition-colors flex-shrink-0">{c.icon}</span>
+                    <span className="group-hover:underline underline-offset-2 truncate">{c.text}</span>
+                    <ArrowUpRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto flex-shrink-0" />
                   </a>
                 ) : (
-                  <div key={i} className="flex items-center gap-3 text-sm text-white/50">
-                    <span className="text-indigo-400">{c.icon}</span>
+                  <div key={i} className="flex items-center gap-3 text-sm text-muted py-0.5">
+                    <span className="text-indigo-400 flex-shrink-0">{c.icon}</span>
                     <span>{c.text}</span>
                   </div>
                 )
@@ -217,30 +314,30 @@ function About() {
           {/* CP profiles + education */}
           <div className="space-y-6">
             <div className="glass-card p-8 reveal reveal-delay-2">
-              <h3 className="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-body mb-5 flex items-center gap-2">
                 <Code2 size={18} className="text-indigo-400" /> Competitive Programming
               </h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {cpProfiles.map((p, i) => (
                   <a key={i} href={p.url} target="_blank" rel="noopener noreferrer"
-                    className="group flex items-center gap-2.5 p-3 rounded-xl bg-white/3 hover:bg-white/7 border border-white/5 hover:border-indigo-500/30 transition-all duration-250">
+                    className="group flex items-center gap-2.5 p-3 rounded-xl transition-all duration-250 glass-card">
                     <div>
                       <div className={`text-sm font-semibold ${p.color}`}>{p.name}</div>
-                      <div className="text-xs text-white/35 group-hover:text-white/60 transition-colors">@{p.handle}</div>
+                      <div className="text-xs text-faint group-hover:text-muted transition-colors">@{p.handle}</div>
                     </div>
-                    <ArrowUpRight size={13} className="ml-auto text-white/20 group-hover:text-white/60 transition-colors" />
+                    <ArrowUpRight size={13} className="ml-auto text-faint group-hover:text-muted transition-colors" />
                   </a>
                 ))}
               </div>
             </div>
             <div className="glass-card p-8 reveal reveal-delay-3">
-              <h3 className="text-lg font-semibold text-white mb-4">Education</h3>
+              <h3 className="text-lg font-semibold text-body mb-4">Education</h3>
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-xl flex-shrink-0 shadow-lg shadow-indigo-500/25">🎓</div>
                 <div>
-                  <h4 className="font-semibold text-white/90 text-sm leading-snug">B.Sc. in Information & Communication Engineering</h4>
+                  <h4 className="font-semibold text-body text-sm leading-snug">B.Sc. in Information & Communication Engineering</h4>
                   <p className="text-indigo-300 text-sm mt-1">Noakhali Science & Technology University</p>
-                  <p className="text-white/35 text-xs mt-1.5">Jan 2019 – May 2024</p>
+                  <p className="text-faint text-xs mt-1.5">Jan 2019 – May 2024</p>
                 </div>
               </div>
             </div>
@@ -263,20 +360,20 @@ function Skills() {
   const [active, setActive] = useState("AI / ML")
   const cats = Object.keys(ALL_SKILLS) as (keyof typeof ALL_SKILLS)[]
   return (
-    <section id="skills" className="py-28 px-6 relative z-10">
+    <section id="skills" className="section-alt py-28 px-6 relative z-10">
       <div className="max-w-6xl mx-auto">
         <div className="reveal text-center mb-16">
           <div className="section-label justify-center"><span>Expertise</span></div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white">Skills &amp; <span className="gradient-text">Stack</span></h2>
+          <h2 className="text-4xl sm:text-5xl font-bold text-body">Skills &amp; <span className="gradient-text">Stack</span></h2>
         </div>
         {/* Category tabs */}
-        <div className="reveal reveal-delay-1 flex flex-wrap gap-2 justify-center mb-10">
+        <div className="reveal reveal-delay-1 flex flex-wrap gap-1.5 justify-center mb-10">
           {cats.map(c => (
             <button key={c} onClick={() => setActive(c)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-250 ${active === c
+              className={`flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-250 ${active === c
                 ? "bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/30 border border-white/15"
-                : "glass-card text-white/55 hover:text-white/90 border border-white/5"}`}>
-              <span className={active === c ? "text-white" : "text-indigo-400"}>{ALL_SKILLS[c].icon}</span>
+                : "glass-card text-muted hover:text-body border border-border"}`}>
+              <span className={`${active === c ? "text-white" : "text-indigo-400"} flex-shrink-0`}>{ALL_SKILLS[c].icon}</span>
               {c}
             </button>
           ))}
@@ -296,9 +393,9 @@ function Skills() {
             { label: "Problem Solving", desc: "1000+ competitive programming solutions", icon: "🎯", color: "from-amber-500/20 to-orange-500/20" },
           ].map((c, i) => (
             <div key={i} className={`glass-card p-6 reveal reveal-delay-${i + 1}`}>
-              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${c.color} flex items-center justify-center text-2xl mb-4 border border-white/8`}>{c.icon}</div>
-              <h4 className="font-semibold text-white/90 mb-1.5">{c.label}</h4>
-              <p className="text-white/40 text-sm leading-relaxed">{c.desc}</p>
+              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${c.color} flex items-center justify-center text-2xl mb-4`}>{c.icon}</div>
+              <h4 className="font-semibold text-body mb-1.5">{c.label}</h4>
+              <p className="text-subtle text-sm leading-relaxed">{c.desc}</p>
             </div>
           ))}
         </div>
@@ -319,7 +416,7 @@ function Projects() {
       <div className="max-w-6xl mx-auto">
         <div className="reveal text-center mb-16">
           <div className="section-label justify-center"><span>Work</span></div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white">Featured <span className="gradient-text">Projects</span></h2>
+          <h2 className="text-4xl sm:text-5xl font-bold text-body">Featured <span className="gradient-text">Projects</span></h2>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((p, i) => (
@@ -327,18 +424,18 @@ function Projects() {
               className={`glass-card group flex flex-col p-7 hover-lift reveal reveal-delay-${i + 1}`}>
               {/* Header */}
               <div className="flex items-start justify-between mb-5">
-                <div className={`w-13 h-13 w-14 h-14 rounded-2xl bg-gradient-to-br ${p.gradient} flex items-center justify-center text-2xl shadow-lg flex-shrink-0`}>{p.emoji}</div>
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${p.gradient} flex items-center justify-center text-2xl shadow-lg flex-shrink-0`}>{p.emoji}</div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="w-8 h-8 glass rounded-lg flex items-center justify-center text-white/60 hover:text-white transition-colors border border-white/10">
+                  <div className="w-8 h-8 glass rounded-lg flex items-center justify-center text-muted hover:text-body transition-colors">
                     <Github size={14} />
                   </div>
-                  <div className="w-8 h-8 glass rounded-lg flex items-center justify-center text-white/60 hover:text-white transition-colors border border-white/10">
+                  <div className="w-8 h-8 glass rounded-lg flex items-center justify-center text-muted hover:text-body transition-colors">
                     <ExternalLink size={14} />
                   </div>
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-white/90 group-hover:text-white mb-2.5 transition-colors">{p.title}</h3>
-              <p className="text-white/45 text-sm leading-relaxed flex-1 mb-5">{p.desc}</p>
+              <h3 className="text-lg font-bold text-body group-hover:text-body mb-2.5 transition-colors">{p.title}</h3>
+              <p className="text-subtle text-sm leading-relaxed flex-1 mb-5">{p.desc}</p>
               {/* Shimmer line on hover */}
               <div className={`h-0.5 w-full rounded-full bg-gradient-to-r ${p.gradient} mb-5 opacity-40 group-hover:opacity-80 transition-opacity relative overflow-hidden`}>
                 <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/40 to-transparent" />
@@ -385,28 +482,28 @@ function Experience() {
     { icon: "💾", title: "SQL Certification", org: "HackerRank" },
   ]
   return (
-    <section id="experience" className="py-28 px-6 relative z-10">
+    <section id="experience" className="section-alt py-28 px-6 relative z-10">
       <div className="max-w-6xl mx-auto">
         <div className="reveal text-center mb-16">
           <div className="section-label justify-center"><span>Journey</span></div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white">Experience &amp; <span className="gradient-text">Timeline</span></h2>
+          <h2 className="text-4xl sm:text-5xl font-bold text-body">Experience &amp; <span className="gradient-text">Timeline</span></h2>
         </div>
         {/* Timeline */}
         <div className="relative max-w-3xl mx-auto">
           <div className="absolute left-[22px] top-4 bottom-4 w-0.5 timeline-line rounded-full" />
-          <div className="space-y-10">
+          <div className="space-y-6 sm:space-y-10">
             {items.map((exp, i) => (
-              <div key={i} className={`relative pl-14 reveal reveal-delay-${i + 1}`}>
-                <div className={`timeline-dot absolute left-3 top-5 ${(exp as any).current ? "shadow-[0_0_12px_4px_rgba(99,102,241,0.7)]" : ""}`} />
-                <div className={`glass-card p-7 ${(exp as any).current ? "border-indigo-500/30" : ""}`}>
+              <div key={i} className={`relative pl-12 sm:pl-14 reveal reveal-delay-${i + 1}`}>
+                <div className={`timeline-dot absolute left-2.5 sm:left-3 top-5 ${exp.current ? "shadow-[0_0_12px_4px_rgba(99,102,241,0.7)]" : ""}`} />
+                <div className={`glass-card p-5 sm:p-7 ${exp.current ? "border-indigo-500/30" : ""}`}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{exp.icon}</span>
                       <div>
                         <div className="flex items-center gap-2.5 flex-wrap">
-                          <h3 className="font-bold text-white text-base">{exp.role}</h3>
-                          {(exp as any).current && (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                          <h3 className="font-bold text-body text-base">{exp.role}</h3>
+                          {exp.current && (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 border border-emerald-500/25">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-dot-blink flex-shrink-0" />
                               Current
                             </span>
@@ -415,11 +512,11 @@ function Experience() {
                         <p className="text-indigo-300 text-sm font-medium">{exp.company}</p>
                       </div>
                     </div>
-                    <span className="glass px-3.5 py-1.5 rounded-full text-xs text-white/50 border border-white/8 whitespace-nowrap flex-shrink-0">{exp.period}</span>
+                    <span className="glass px-3.5 py-1.5 rounded-full text-xs text-muted flex-shrink-0 border border-border">{exp.period}</span>
                   </div>
                   <ul className="space-y-2.5">
                     {exp.points.map((pt, j) => (
-                      <li key={j} className="flex items-start gap-2.5 text-sm text-white/55 group/li hover:text-white/75 transition-colors">
+                      <li key={j} className="flex items-start gap-2.5 text-sm text-muted group/li hover:text-body transition-colors">
                         <ChevronRight size={14} className="flex-shrink-0 mt-0.5 text-indigo-400 group-hover/li:text-violet-400 transition-colors" />
                         {pt}
                       </li>
@@ -429,16 +526,15 @@ function Experience() {
               </div>
             ))}
           </div>
-
         </div>
         {/* Certifications */}
         <div className="mt-16 reveal">
-          <h3 className="text-xl font-bold text-white text-center mb-7">Certifications</h3>
+          <h3 className="text-xl font-bold text-body text-center mb-7">Certifications</h3>
           <div className="grid sm:grid-cols-3 gap-5 max-w-3xl mx-auto">
             {certs.map((c, i) => (
               <div key={i} className={`glass-card p-6 text-center reveal reveal-delay-${i + 1}`}>
                 <div className="text-3xl mb-3">{c.icon}</div>
-                <h4 className="text-sm font-semibold text-white/85 mb-1">{c.title}</h4>
+                <h4 className="text-sm font-semibold text-body mb-1">{c.title}</h4>
                 <p className="text-xs text-indigo-300">{c.org}</p>
               </div>
             ))}
@@ -470,8 +566,8 @@ function Contact() {
       <div className="max-w-6xl mx-auto">
         <div className="reveal text-center mb-16">
           <div className="section-label justify-center"><span>Get In Touch</span></div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white">Let&apos;s <span className="gradient-text">Connect</span></h2>
-          <p className="text-white/45 mt-4 max-w-lg mx-auto text-base leading-relaxed">
+          <h2 className="text-4xl sm:text-5xl font-bold text-body">Let&apos;s <span className="gradient-text">Connect</span></h2>
+          <p className="text-subtle mt-4 max-w-lg mx-auto text-base leading-relaxed">
             Whether you have a project idea, a job opportunity, or just want to say hi — my inbox is always open.
           </p>
         </div>
@@ -479,15 +575,15 @@ function Contact() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="glass-card p-8 space-y-5 reveal reveal-delay-1">
             <div>
-              <label className="block text-xs font-semibold text-white/50 mb-2 uppercase tracking-wider">Name</label>
+              <label className="block text-xs font-semibold text-muted mb-2">Name</label>
               <input required className="form-input" placeholder="Your name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-white/50 mb-2 uppercase tracking-wider">Email</label>
+              <label className="block text-xs font-semibold text-muted mb-2">Email</label>
               <input required type="email" className="form-input" placeholder="your@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-white/50 mb-2 uppercase tracking-wider">Message</label>
+              <label className="block text-xs font-semibold text-muted mb-2">Message</label>
               <textarea required rows={4} className="form-input resize-none" placeholder="Tell me about your project or idea..." value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} />
             </div>
             <button type="submit" className="btn-primary w-full justify-center">
@@ -497,7 +593,7 @@ function Contact() {
           {/* Info */}
           <div className="space-y-6 reveal reveal-delay-2">
             <div className="glass-card p-8">
-              <h3 className="text-lg font-semibold text-white mb-5">Direct Contact</h3>
+              <h3 className="text-lg font-semibold text-body mb-5">Direct Contact</h3>
               <div className="space-y-4">
                 {[
                   { label: "Email", val: "sohanurrahman621@gmail.com", href: "mailto:sohanurrahman621@gmail.com" },
@@ -505,20 +601,20 @@ function Contact() {
                   { label: "Location", val: "Mohakhali, Dhaka, Bangladesh", href: null },
                 ].map((item, i) => (
                   <div key={i}>
-                    <div className="text-xs text-white/35 uppercase tracking-wider font-semibold mb-1">{item.label}</div>
+                    <div className="text-xs text-muted uppercase tracking-wider font-semibold mb-1">{item.label}</div>
                     {item.href
                       ? <a href={item.href} className="text-indigo-300 hover:text-violet-300 transition-colors text-sm font-medium">{item.val}</a>
-                      : <p className="text-white/60 text-sm">{item.val}</p>}
+                      : <p className="text-muted text-sm">{item.val}</p>}
                   </div>
                 ))}
               </div>
             </div>
             <div className="glass-card p-6">
-              <h3 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Find Me On</h3>
+              <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">Find Me On</h3>
               <div className="flex gap-3 flex-wrap">
                 {socials.map((s, i) => (
                   <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" title={s.label}
-                    className="flex items-center gap-2 px-4 py-2.5 glass rounded-xl border border-white/8 text-white/50 hover:text-white hover:border-indigo-500/40 hover:bg-indigo-500/10 transition-all text-sm font-medium">
+                    className="flex items-center gap-2 px-4 py-2.5 glass rounded-xl border border-border text-muted hover:text-body hover:border-indigo-500/30 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/10 transition-all text-sm font-medium">
                     {s.icon}{s.label}
                   </a>
                 ))}
@@ -534,14 +630,13 @@ function Contact() {
 /* ── Footer ─────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="border-t border-white/5 py-8 px-6 relative z-10">
-      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/30">
+    <footer className="border-t border-border py-8 px-6 relative z-10">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-faint">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-xs font-bold text-white">SR</div>
           <span>Sohanur Rahman</span>
         </div>
-        {/* <p>Built with <span className="text-rose-400">♥</span> using Next.js &amp; Tailwind CSS</p> */}
-        <p>© 2026 — All rights reserved</p>
+        <p>&copy; 2026 — All rights reserved</p>
       </div>
     </footer>
   )

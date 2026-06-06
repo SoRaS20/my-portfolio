@@ -1,8 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
+import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
 const inter = Inter({
@@ -39,14 +39,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
-      <body className="noise" style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#05050f", color: "#f1f5f9" }}>
-        <Suspense fallback={null}>{children}</Suspense>
-        <Analytics />
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body className="noise">
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <Suspense fallback={null}>{children}</Suspense>
+        </ThemeProvider>
       </body>
     </html>
   )
