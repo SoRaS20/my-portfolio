@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { VT323 } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
 
@@ -43,7 +42,6 @@ export default function RootLayout({
     <html lang="en" className={vt323.variable}>
       <body className="font-mono scan-lines bg-black text-green-400 antialiased">
         <Suspense fallback={null}>{children}</Suspense>
-        <Analytics />
       </body>
     </html>
   )
